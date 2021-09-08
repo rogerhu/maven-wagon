@@ -47,6 +47,7 @@ import org.apache.http.client.utils.DateUtils;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -64,6 +65,8 @@ import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.DefaultServiceUnavailableRetryStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
@@ -551,6 +554,11 @@ public abstract class AbstractHttpClientWagon
 
     private static CloseableHttpClient httpClient = createClient();
 
+    private static HttpRoutePlanner createRoutePlanner()
+    {
+        return new DefaultProxyRoutePlanner(new HttpHost("cloudproxy.stage.east.us.square", 32281));
+    }
+
     private static CloseableHttpClient createClient()
     {
         return HttpClientBuilder.create() //
@@ -561,6 +569,7 @@ public abstract class AbstractHttpClientWagon
             .setServiceUnavailableRetryStrategy( createServiceUnavailableRetryStrategy() )
             .setDefaultAuthSchemeRegistry( createAuthSchemeRegistry() )
             .setRedirectStrategy( new WagonRedirectStrategy() )
+            .setRoutePlanner(createRoutePlanner())
             .build();
     }
 
